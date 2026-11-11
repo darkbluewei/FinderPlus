@@ -61,12 +61,21 @@ public final class FileOperations {
         return c.hasPrefix(p.hasSuffix("/") ? p : p + "/")
     }
 
-    public func sameVolume(_ a: URL, _ b: URL) -> Bool {
-        let va = try? a.resourceValues(forKeys: [.volumeURLKey]).volumeURL
-        let vb = try? b.resourceValues(forKeys: [.volumeURLKey]).volumeURL
-        guard let x = va, let y = vb else { return false }
-        return x == y
+   public func sameVolume(_ a: URL, _ b: URL) -> Bool {
+    do {
+        let aValues = try a.resourceValues(forKeys: [.volumeURLKey])
+        let bValues = try b.resourceValues(forKeys: [.volumeURLKey])
+
+        guard let aVolume = aValues.volume,
+              let bVolume = bValues.volume else {
+            return false
+        }
+
+        return aVolume == bVolume
+    } catch {
+        return false
     }
+}
 
     /// 生成不重名的目标地址：name.ext → name 2.ext → name 3.ext
     public func uniqueURL(_ url: URL) -> URL {
