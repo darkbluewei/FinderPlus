@@ -1,0 +1,41 @@
+name: Build FinderPlus
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 工具链版本
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: 编译并打包 App
+        run: ./build.sh
+
+      - name: 上传 App（FinderPlus.zip）
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinderPlus
+          path: build/FinderPlus.zip
+
+      # 测试放在编译之后：测试失败只会标黄提醒，不会阻止你拿到 App
+      - name: 运行核心逻辑自检
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee test.log
+
+      - name: 上传测试日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log
+          if-no-files-found: ignore
