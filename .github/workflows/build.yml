@@ -16,7 +16,7 @@ jobs:
           xcodebuild -version
 
       - name: 编译并打包 App
-        run: ./build.sh
+        run: bash ./build.sh
 
       - name: 上传 App（FinderPlus.zip）
         uses: actions/upload-artifact@v4
